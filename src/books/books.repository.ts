@@ -33,4 +33,9 @@ export class BookRepository {
         // return at most 20 books with correct structure
         return books.map(book => this.bookToBookData(book)).slice(0, 20);
     }
+
+
+    async findBookById(_id: string): Promise<BookData | null> {
+        return null 
+    }
 }

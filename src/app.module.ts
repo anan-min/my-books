@@ -14,7 +14,12 @@ dotenv.config();
 
 
 @Module({
-  imports: [BooksModule, CartsModule, OrdersModule, RedisModule, MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost/nest')],
+  imports: [  BooksModule, 
+              CartsModule, 
+              OrdersModule, 
+              RedisModule, 
+              MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost/nest')
+            ],
   controllers: [AppController, CartsController],
   providers: [AppService, BooksService, OrdersService],
 })
