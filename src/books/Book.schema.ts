@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { Document, Types } from "mongoose";
 
-@Schema()
+@Schema({timestamps: true})
 export class Book extends Document {
   @Prop({ required: true })
   title: string;
@@ -15,11 +15,16 @@ export class Book extends Document {
   @Prop({ required: true })
   stock: number;
 
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
 }
 
 
 export interface BookData {
-  _id: Types.ObjectId;
+  _id: string;
   title: string;
   genre: string[];
   price: number;
@@ -32,4 +37,3 @@ export interface BookData {
 
 
 export const BookSchema = SchemaFactory.createForClass(Book);
-BookSchema.set('timestamps', true);

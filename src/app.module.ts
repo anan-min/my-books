@@ -8,10 +8,16 @@ import { CartsModule } from './carts/carts.module';
 import { OrdersService } from './orders/orders.service';
 import { OrdersModule } from './orders/orders.module';
 import { RedisModule } from './redis/redis.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import * as dotenv from 'dotenv';
+dotenv.config(); 
+
 
 @Module({
-  imports: [BooksModule, CartsModule, OrdersModule, RedisModule],
+  imports: [BooksModule, CartsModule, OrdersModule, RedisModule, MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost/nest')],
   controllers: [AppController, CartsController],
   providers: [AppService, BooksService, OrdersService],
 })
-export class AppModule {}
+export class AppModule {
+
+}

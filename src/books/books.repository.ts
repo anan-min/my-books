@@ -6,24 +6,31 @@ import { BookData } from './Book.schema';
 
 
 @Injectable()
-export class BooksService {
+export class BookRepository {
     constructor(
         @InjectModel(Book.name) private bookModel: Model<Book>,
     ) {}
 
-;
-    async createBook (title: string, genre: string[], price: number, stock: number): Promise<BookData> {
-        const result =  await this.bookModel.create({title, genre, price, stock})
-        return result.toObject()
+
+    private bookToBookData(book: any): BookData {
+        return {
+            _id: book._id.toString(),
+            title: book.title,
+            genre: book.genre,
+            price: book.price,
+            stock: book.stock,
+            createdAt: book.createdAt,
+            updatedAt: book.updatedAt,
+        };
     }
 
-    async findAllBooks(): Promise<BookData[]> {
-        // Use lean and exec for queries
-        return this.bookModel.find().lean().exec();
+    async findDefaultBooks(): Promise<BookData[]> {
+        const books = await this.bookModel.find()
+            .limit(20)
+            .lean()
+            .exec();
+        
+        // return at most 20 books with correct structure
+        return books.map(book => this.bookToBookData(book)).slice(0, 20);
     }
-
-    async findBookById(id: string): Promise<BookData | null> {
-        return this.bookModel.findById(id).lean().exec();
-    }
-
 }
