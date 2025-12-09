@@ -51,6 +51,8 @@ describe('CartsService', () => {
     // test cases 
     // (1) normal flow 
     // should create a new cart and add the item, return the new cart id
+    // should call enoughStock(1) getCart(1) createCart(1)
+    // should call enoughStock getCart createCart with correct arguments
 
 
     // (2) error flow 
