@@ -36,7 +36,11 @@ export class BookRepository {
 
 
     async getBookStock(id: string): Promise<number | null> {
-        return null 
+        const book = await this.bookModel.findById(id).lean().exec();
+        if (!book) {
+            return null;
+        }
+        return book.stock;
     }
 
 

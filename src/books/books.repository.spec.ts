@@ -144,27 +144,58 @@ describe('BookRepository', () => {
         // should return stock number if book is exists 
         // should handle error when database raise error 
 
-
-        
-
-
         it('should return null if book not', async () => {
-
+            const id = "undefined"
+            mockBookModel.findById.mockReturnValue(mockFindByIdChain(null))
+            const result = await repo.getBookStock(id);
+            expect(mockBookModel.findById).toHaveBeenCalledWith(id);
+            expect(result).toBeNull();
         })
 
         it('should return 0 if book out of stock', async () => {
-            
+            const id = "outOfStockId"
+            const mockBook = {
+                _id: new Types.ObjectId(),
+                title: 'Out of Stock Book',
+                genre: ['Fiction'],
+                price: 15,
+                stock: 0,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
+            mockBookModel.findById.mockReturnValue( mockFindByIdChain(mockBook) )
+            const result = await repo.getBookStock(id);
+            expect( mockBookModel.findById ).toHaveBeenCalledWith(id);
+            expect(result).toBe(0);
         })
 
         it('should return stock number if book is exists', async () => {
-            
+            const id = "validid"
+            const mockBook = {
+                _id: new Types.ObjectId(),
+                title: 'Out of Stock Book',
+                genre: ['Fiction'],
+                price: 15,
+                stock: 27,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
+            mockBookModel.findById.mockReturnValue( mockFindByIdChain(mockBook) )
+            const result = await repo.getBookStock(id);
+            expect( mockBookModel.findById ).toHaveBeenCalledWith(id);
+            expect(result).toBe(27);
         })
 
         it('should handle error when database raise error', async () => {
-            
+            const id = "valid_id"
+            const errorMessage = "error"
+            mockBookModel.findById.mockImplementation(() => {
+                throw new Error(errorMessage);
+            });
+            await expect(repo.getBookStock(id)).rejects.toThrow(errorMessage);
+            expect(mockBookModel.findById).toHaveBeenCalled();
         })
         
-
 
     })
 

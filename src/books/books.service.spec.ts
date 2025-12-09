@@ -102,19 +102,63 @@ describe('BooksService', () => {
 
   });
 
-  // should be defined 
-  // should return stock when book exists 
-  // should return 0 if book exists but 0
-  // should return null when book does not exist 
-  // should handle errors from the repository
-  describe('addItemtoCart', () => {
 
+
+  // should return true when enough stock exists
+  // should return false when not enough stock exists
+  // should return false when book does not exist
+  // should handle errors from the repository
+
+  describe('hasEnoughStock', () => {
+    it('should return true when enough stock exists', async () => {
+      mockRepo.getBookStock = jest.fn().mockResolvedValue(10);
+      const bookId = 'book-id-1';
+      const quantity = 5;
+
+      const result = await service.hasEnoughStock(bookId, quantity);
+      expect(mockRepo.getBookStock).toHaveBeenCalledWith(bookId);
+      expect(result).toBe(true);
+    });
+
+    it('should return true when enough stock exists 2', async () => {
+      mockRepo.getBookStock = jest.fn().mockResolvedValue(5);
+      const bookId = 'book-id-1';
+      const quantity = 5;
+
+      const result = await service.hasEnoughStock(bookId, quantity);
+      expect(mockRepo.getBookStock).toHaveBeenCalledWith(bookId);
+      expect(result).toBe(true);
+    });
+
+    it('should return false when not enough stock exists', async () => {
+      mockRepo.getBookStock = jest.fn().mockResolvedValue(5);
+      const bookId = 'book-id-1';
+      const quantity = 3;
+      
+      const result = await service.hasEnoughStock(bookId, quantity);
+      expect(mockRepo.getBookStock).toHaveBeenCalledWith(bookId);
+      expect(result).toBe(true);
+    });
+    
+    it('should return false when book does not exist', async () => {
+      mockRepo.getBookStock = jest.fn().mockResolvedValue(null);
+      const bookId = 'book-id-1';
+      const quantity = 6;
+      
+      const result = await service.hasEnoughStock(bookId, quantity);
+      expect(mockRepo.getBookStock).toHaveBeenCalledWith(bookId);
+      expect(result).toBe(false);
+      
+    });
+    it('should handle errors from the repository', async () => {
+        const id = "validId"
+        const qty = 1
+        mockRepo.getBookStock = jest.fn().mockRejectedValue(new Error('Database error'));
+        await expect(service.hasEnoughStock(id, qty)).rejects.toThrow('Database error');
+        expect(mockRepo.getBookStock).toHaveBeenCalled();
+    });
 
   });
-
-
-
-
 
 
 });
