@@ -61,10 +61,10 @@ describe('CartsService', () => {
     // 2.3 should handle errors from repository when get cart
 
 
-    beforeEach( async () => {
-      mockCartRepo.getCart = jest.fn().mockResolvedValue(null)
-      mockBooksService.hasEnoughStock = jest.fn().mockResolvedValue(true)
-    })
+  beforeEach( async () => {
+    mockCartRepo.getCart = jest.fn().mockResolvedValue(null)
+    mockBooksService.hasEnoughStock = jest.fn().mockResolvedValue(true)
+  })
 
   it('should create a new cart and add the item, return the new cart id', async () => {
       const inputCartId = null 

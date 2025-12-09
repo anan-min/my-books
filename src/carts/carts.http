@@ -1,0 +1,9 @@
+
+### Add item to cart 
+POST http://localhost:3000/carts/add
+Content-Type: application/json
+
+{
+  "bookId": "693691f884f2437364f43f5c",
+  "quantity": 1
+}

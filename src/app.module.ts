@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { BooksService } from './books/books.service';
 import { BooksModule } from './books/books.module';
 import { CartsController } from './carts/carts.controller';
+import { BooksController } from './books/books.controller';
 import { CartsModule } from './carts/carts.module';
 import { OrdersService } from './orders/orders.service';
 import { OrdersModule } from './orders/orders.module';
@@ -20,7 +21,7 @@ dotenv.config();
               RedisModule, 
               MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost/nest')
             ],
-  controllers: [AppController, CartsController],
+  controllers: [AppController, CartsController, BooksController],
   providers: [AppService, BooksService, OrdersService],
 })
 export class AppModule {
