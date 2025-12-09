@@ -35,7 +35,15 @@ export class BookRepository {
     }
 
 
-    async findBookById(_id: string): Promise<BookData | null> {
+    async getBookStock(id: string): Promise<number | null> {
         return null 
     }
+
+
+    
+
+
+
+
+
 }

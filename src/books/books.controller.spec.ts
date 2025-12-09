@@ -59,6 +59,7 @@ describe('BooksController', () => {
     const result = await controller.getDefaultBooks();
 
     const expectedResult = mockBooks.map(book => ({
+      _id: book._id,
       title: book.title,
       genre: book.genre,
       price: book.price,

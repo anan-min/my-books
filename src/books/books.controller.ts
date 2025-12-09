@@ -13,7 +13,6 @@ export class BooksController {
     @Get() 
     async getDefaultBooks() {
         const books: BookData[] = await this.bookService.getDefaultBooks();
-        console.log('Fetched books:', books[1]);
         return books.map((book: BookData) => plainToInstance(BookOutputDto, book, { excludeExtraneousValues: true }));
     }
 

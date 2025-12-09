@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { BookRepository } from './books.repository';
 import { Types } from 'mongoose';
+import { mock } from 'node:test';
 
 describe('BookRepository', () => {
     let repo: BookRepository;
@@ -14,6 +15,13 @@ describe('BookRepository', () => {
             limitValue = n;
             return this;
             },
+            lean: function () { return this; },
+            exec: function () { return Promise.resolve(mockData); },
+        };
+    }
+
+    function mockFindByIdChain(mockData: any) {
+        return {
             lean: function () { return this; },
             exec: function () { return Promise.resolve(mockData); },
         };
@@ -39,7 +47,8 @@ describe('BookRepository', () => {
 
     beforeEach( async () => {
         mockBookModel = {
-            find: jest.fn()
+            find: jest.fn(),
+            findById: jest.fn(),
         }
 
         const module: TestingModule = await Test.createTestingModule({
@@ -68,62 +77,96 @@ describe('BookRepository', () => {
         expect(repo).toBeDefined();
     });
 
+    describe('get default books', () => {
 
-    it('should return 20 books if more than 20 exists', async () => {
-        const mockBooks = mockBookFromDatabase(30);
-        mockBookModel.find.mockReturnValue(mockFindChain(mockBooks));
-        const result = await repo.findDefaultBooks();
-        expect(result.length).toBe(20);
-        expect(mockBookModel.find).toHaveBeenCalled();
-    });
-
-
-    it('it should return all books if less than 20 exists', async () => {
-        const mockBooks = mockBookFromDatabase(10);
-        mockBookModel.find.mockReturnValue(mockFindChain(mockBooks));
-        const result = await repo.findDefaultBooks();
-        expect(result.length).toBe(10);
-        expect(mockBookModel.find).toHaveBeenCalled();
-    });
-
-
-    it('should return an empty array if no books exists', async () => {
-        const mockBooks = [];
-        mockBookModel.find.mockReturnValue(mockFindChain(mockBooks));
-        const result = await repo.findDefaultBooks();
-        expect(result).toEqual([]);
-        expect(mockBookModel.find).toHaveBeenCalled();
-    });
-
-
-    it('should return books with correct structure', async () => {
-        const mockBooks = mockBookFromDatabase(2);
-        mockBookModel.find.mockReturnValue(mockFindChain(mockBooks));
-        const result = await repo.findDefaultBooks();
-        const expectedResult = mockBooks.map(book => ({ 
-            _id: book._id.toString(),
-            title: book.title,
-            genre: book.genre,
-            price: book.price,
-            stock: book.stock,
-            createdAt: book.createdAt,
-            updatedAt: book.updatedAt,
-        }));
-        expect(result).toEqual(expectedResult);
-        expect(mockBookModel.find).toHaveBeenCalled();
-    });
-
-
-    it('should handle errors from the database', async () => {
-        const errorMessage = 'Database error';
-        mockBookModel.find.mockImplementation(() => {
-            throw new Error(errorMessage);
+        it('should return 20 books if more than 20 exists', async () => {
+            const mockBooks = mockBookFromDatabase(30);
+            mockBookModel.find.mockReturnValue(mockFindChain(mockBooks));
+            const result = await repo.findDefaultBooks();
+            expect(result.length).toBe(20);
+            expect(mockBookModel.find).toHaveBeenCalled();
         });
-
-        await expect(repo.findDefaultBooks()).rejects.toThrow(errorMessage);
-        expect(mockBookModel.find).toHaveBeenCalled();
-    });
-
     
+    
+        it('it should return all books if less than 20 exists', async () => {
+            const mockBooks = mockBookFromDatabase(10);
+            mockBookModel.find.mockReturnValue(mockFindChain(mockBooks));
+            const result = await repo.findDefaultBooks();
+            expect(result.length).toBe(10);
+            expect(mockBookModel.find).toHaveBeenCalled();
+        });
+    
+    
+        it('should return an empty array if no books exists', async () => {
+            const mockBooks = [];
+            mockBookModel.find.mockReturnValue(mockFindChain(mockBooks));
+            const result = await repo.findDefaultBooks();
+            expect(result).toEqual([]);
+            expect(mockBookModel.find).toHaveBeenCalled();
+        });
+    
+    
+        it('should return books with correct structure', async () => {
+            const mockBooks = mockBookFromDatabase(2);
+            mockBookModel.find.mockReturnValue(mockFindChain(mockBooks));
+            const result = await repo.findDefaultBooks();
+            const expectedResult = mockBooks.map(book => ({ 
+                _id: book._id.toString(),
+                title: book.title,
+                genre: book.genre,
+                price: book.price,
+                stock: book.stock,
+                createdAt: book.createdAt,
+                updatedAt: book.updatedAt,
+            }));
+            expect(result).toEqual(expectedResult);
+            expect(mockBookModel.find).toHaveBeenCalled();
+        });
+    
+    
+        it('should handle errors from the database', async () => {
+            const errorMessage = 'Database error';
+            mockBookModel.find.mockImplementation(() => {
+                throw new Error(errorMessage);
+            });
+    
+            await expect(repo.findDefaultBooks()).rejects.toThrow(errorMessage);
+            expect(mockBookModel.find).toHaveBeenCalled();
+        });
+    })
+
+
+
+
+    describe('get book stock', () => {
+        // should return null if book not exists
+        // should return 0 if book out of stock 
+        // should return stock number if book is exists 
+        // should handle error when database raise error 
+
+
+        
+
+
+        it('should return null if book not', async () => {
+
+        })
+
+        it('should return 0 if book out of stock', async () => {
+            
+        })
+
+        it('should return stock number if book is exists', async () => {
+            
+        })
+
+        it('should handle error when database raise error', async () => {
+            
+        })
+        
+
+
+    })
+
 
 });

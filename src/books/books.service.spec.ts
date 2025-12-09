@@ -12,6 +12,7 @@ describe('BooksService', () => {
 
     mockRepo = {
       findDefaultBooks: jest.fn(),
+      getBookStock: jest.fn()
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -49,54 +50,70 @@ describe('BooksService', () => {
   // should call repository method 
   // should handle errors from the repository 
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  describe('get defaultBooks', () => {
+      it('should be defined', () => {
+        expect(service).toBeDefined();
+      });
+    
+    
+      it('should return empty array if no books exists', async () => {
+        const mockBooks = [];
+        mockRepo.findDefaultBooks = jest.fn().mockResolvedValue(mockBooks);
+    
+        const result = await service.getDefaultBooks();
+        expect(result).toEqual([]);
+        expect(mockRepo.findDefaultBooks).toHaveBeenCalled();
+      })
+    
+    
+      it('should return books with correct structure', async () => {
+        const mockBooks = mockBooksFromRepo(20);
+        mockRepo.findDefaultBooks = jest.fn().mockResolvedValue( mockBooks );
+    
+        const expectedResult = mockBooks.map(book => ({
+            _id: book._id,
+            title: book.title,
+            genre: book.genre,
+            price: book.price,
+            stock: book.stock,
+            createdAt: book.createdAt,
+            updatedAt: book.updatedAt,
+          }));
+    
+        const result = await service.getDefaultBooks();
+        expect(result).toEqual(expectedResult);
+        expect(mockRepo.findDefaultBooks).toHaveBeenCalled();
+      })
+    
+    
+      it('should call repository method', async () => {
+        const mockBooks = mockBooksFromRepo(5);
+        mockRepo.findDefaultBooks = jest.fn().mockResolvedValue(mockBooks);
+        await service.getDefaultBooks();
+        expect(mockRepo.findDefaultBooks).toHaveBeenCalledTimes(1);
+      });
+    
+    
+      it('should handle errors from the repository', async () => {
+        mockRepo.findDefaultBooks = jest.fn().mockRejectedValue(new Error('Database error'));
+        await expect(service.getDefaultBooks()).rejects.toThrow('Database error');
+        expect(mockRepo.findDefaultBooks).toHaveBeenCalled();
+      });
+
+  });
+
+  // should be defined 
+  // should return stock when book exists 
+  // should return 0 if book exists but 0
+  // should return null when book does not exist 
+  // should handle errors from the repository
+  describe('addItemtoCart', () => {
+
+
   });
 
 
-  it('should return empty array if no books exists', async () => {
-    const mockBooks = [];
-    mockRepo.findDefaultBooks = jest.fn().mockResolvedValue(mockBooks);
 
-    const result = await service.getDefaultBooks();
-    expect(result).toEqual([]);
-    expect(mockRepo.findDefaultBooks).toHaveBeenCalled();
-  })
-
-
-  it('should return books with correct structure', async () => {
-    const mockBooks = mockBooksFromRepo(20);
-    mockRepo.findDefaultBooks = jest.fn().mockResolvedValue( mockBooks );
-
-    const expectedResult = mockBooks.map(book => ({
-        _id: book._id,
-        title: book.title,
-        genre: book.genre,
-        price: book.price,
-        stock: book.stock,
-        createdAt: book.createdAt,
-        updatedAt: book.updatedAt,
-      }));
-
-    const result = await service.getDefaultBooks();
-    expect(result).toEqual(expectedResult);
-    expect(mockRepo.findDefaultBooks).toHaveBeenCalled();
-  })
-
-
-  it('should call repository method', async () => {
-    const mockBooks = mockBooksFromRepo(5);
-    mockRepo.findDefaultBooks = jest.fn().mockResolvedValue(mockBooks);
-    await service.getDefaultBooks();
-    expect(mockRepo.findDefaultBooks).toHaveBeenCalledTimes(1);
-  });
-
-
-  it('should handle errors from the repository', async () => {
-    mockRepo.findDefaultBooks = jest.fn().mockRejectedValue(new Error('Database error'));
-    await expect(service.getDefaultBooks()).rejects.toThrow('Database error');
-    expect(mockRepo.findDefaultBooks).toHaveBeenCalled();
-  });
 
 
 

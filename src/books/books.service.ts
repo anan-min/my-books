@@ -10,4 +10,8 @@ export class BooksService {
         return (await this.bookRepository.findDefaultBooks()).slice(0, 20);
     }
     
+
+    async addItem(id: string, quantity: number, cartId: string): Promise<void> {
+        // implementation here
+    }
 }
