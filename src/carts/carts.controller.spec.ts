@@ -1,11 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CartsController } from './carts.controller';
 import { CartsService } from './carts.service';
-import { AddItemInputDto, CartMeta } from './cart.dto';
-import { v4 as uuidv4 } from 'uuid';
-import { Cart } from './carts.repository';
-import { GetCartOutputDto, GetCartInputDto, GetCartFromCheckoutDto, CheckoutMeta } from './cart.dto';
 import { BadRequestException } from '@nestjs/common';
+import { AddItemRequestDto } from './dtos/add-item.dto';
+import { Cart, CartSummary, CheckoutSummary } from './cart.interface';
+import { CheckoutSummaryDto } from './dtos/checkout-summary.dto';
+import { GetCartResponseDto } from './dtos/get-cart.dto';
+import e from 'express';
 
 
   describe('CartsController', () => {
@@ -40,7 +41,7 @@ import { BadRequestException } from '@nestjs/common';
       });
   
       it('should set carId to null if not send from user', async () => {
-        const input: AddItemInputDto = {
+        const input: AddItemRequestDto = {
           bookId: "valid_book_id",
           quantity: 1,
         }
@@ -65,7 +66,7 @@ import { BadRequestException } from '@nestjs/common';
       
   
       it('should set carId to null if not send from user', async () => {
-        const input: AddItemInputDto = {
+        const input: AddItemRequestDto = {
           bookId: "valid_book_id",
           quantity: 1,
         }
@@ -95,7 +96,7 @@ import { BadRequestException } from '@nestjs/common';
 
     // should check cartId if 
     describe('getCart', () => {
-      it('should return cartId cart and metadata for render', async () => {
+      it('should return cartId cart cartDisplay and cartSummary', async () => {
         // should return cartId cart and meta data for render 
         // should handle error from service error 
 
@@ -108,13 +109,13 @@ import { BadRequestException } from '@nestjs/common';
             }
           ]
         }
-        const meta: CartMeta = {
+        const cartSummary: CartSummary = {
           totalItems: 1, 
           totalPrice: 20,
           messages: [] 
         }
 
-        const renderData = [
+        const cartDisplay = [
           {
             bookId: "book-id-1",
             bookTitle: "Some Book",
@@ -123,9 +124,16 @@ import { BadRequestException } from '@nestjs/common';
           }
         ]
 
-        mockCartService.getCart = jest.fn().mockResolvedValue({cartId, cart, renderData, meta})
+        const expectedOutput: GetCartResponseDto = {
+          cartId,
+          cart,
+          cartDisplay,
+          cartSummary
+        }
+
+        mockCartService.getCart = jest.fn().mockResolvedValue({cartId, cart, cartDisplay, cartSummary})
         const result = await controller.getCart(cartId);
-        expect(result).toEqual({cartId, cart, renderData, meta})
+        expect(result).toEqual(expectedOutput);
       })
 
       it('should handle errorn when service error occurs', async () => {
@@ -160,14 +168,14 @@ import { BadRequestException } from '@nestjs/common';
         const cartId = "cartId"
 
 
-        const serviceResult: CheckoutMeta = {
+        const serviceResult: CheckoutSummary = {
           totalItems: 1, 
           totalPrice: 50.12,
           shippingCost: 100,
           grandTotal: 150.12
         }
 
-        const expectedOutput: GetCartFromCheckoutDto = {
+        const expectedOutput: CheckoutSummaryDto = {
           totalItems: 1, 
           totalPrice: 50.12,
           shippingCost: 100,

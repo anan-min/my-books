@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Cart, CartsRepository } from './carts.repository';
+import { Cart } from './cart.interface';
+import { CartsRepository } from './carts.repository';
 import { describe, mock } from 'node:test';
 import { RedisService } from '../redis/redis.service';
 

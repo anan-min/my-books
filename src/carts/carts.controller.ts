@@ -1,9 +1,12 @@
 import { BadRequestException, Controller, Get } from '@nestjs/common';
 import { Body, Post, Patch, Param} from '@nestjs/common'
-import { AddItemInputDto, AddItemOutputDto } from './cart.dto';
-import { CartsService} from './carts.service';
 import { plainToInstance } from 'class-transformer';
-import { GetCartInputDto, GetCartOutputDto } from './cart.dto';
+
+import { CartsService} from './carts.service';
+
+import { AddItemRequestDto, AddItemResponseDto } from './dtos/add-item.dto';
+import  { GetCartResponseDto } from './dtos/get-cart.dto';
+import { CheckoutSummaryDto } from './dtos/checkout-summary.dto';
 
 
 @Controller('carts')
@@ -15,11 +18,11 @@ export class CartsController {
     @Post('add')
     // @UsePipes(new ValidationPipe({ transform: true }))
     async addItemToCart(
-        @Body() body: AddItemInputDto
+        @Body() body: AddItemRequestDto
     ) {
         const cartId = body.cartId ? body.cartId : null;
         const result = await this.cartsService.addItem(body.bookId, body.quantity, cartId);
-        return plainToInstance(AddItemOutputDto, result);
+        return plainToInstance(AddItemResponseDto, result);
     }
 
 
@@ -30,7 +33,7 @@ export class CartsController {
         }
         try {
             const result = await this.cartsService.getCart(cartId);
-            return plainToInstance(GetCartOutputDto, result);
+            return plainToInstance(GetCartResponseDto, result);
         } catch (error) {
             throw new Error("Server Error")
         }
@@ -44,7 +47,8 @@ export class CartsController {
         }
 
         try {
-            return await this.cartsService.generateCheckoutRenderData(cartId);
+            const result = await this.cartsService.generateCheckoutRenderData(cartId);
+            return plainToInstance(CheckoutSummaryDto, result);
         } catch (error) {
             throw new Error("Server Error")
         }

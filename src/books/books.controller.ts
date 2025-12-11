@@ -3,7 +3,6 @@ import { Get } from '@nestjs/common'
 import { BooksService } from './books.service';
 import { plainToInstance } from 'class-transformer';
 import { BookOutputDto } from './books.dto';
-import { BookData } from './Book.schema';
 
 @Controller('books')
 export class BooksController {
@@ -11,8 +10,8 @@ export class BooksController {
     
     @Get() 
     async getDefaultBooks() {
-        const books: BookData[] = await this.bookService.getDefaultBooks();
-        return books.map((book: BookData) => plainToInstance(BookOutputDto, book, { excludeExtraneousValues: true }));
+        const books = await this.bookService.getDefaultBooks();
+        return books.map((book: any) => plainToInstance(BookOutputDto, book, { excludeExtraneousValues: true }));
     }
 
 }

@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
-import { Document, Types } from "mongoose";
+import { Document, HydratedDocument } from "mongoose";
+
+export type BookDocument = HydratedDocument<Book>;
 
 @Schema({timestamps: true})
 export class Book extends Document {
@@ -20,19 +22,6 @@ export class Book extends Document {
 
   @Prop()
   updatedAt: Date;
-}
-
-
-export interface BookData {
-  _id: string;
-  title: string;
-  genre: string[];
-  price: number;
-  stock: number;
-  
-  // check if timestamp exists manually 
-  createdAt?: Date;
-  updatedAt?: Date;
 }
 
 

@@ -1,19 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
-import { json } from 'stream/consumers';
+import { CartItem, Cart } from './cart.interface';
 
-
-
-
-export interface CartItem {
-    _id: string; 
-    qty: number;
-}
-
-
-export interface Cart { 
-    items: CartItem[];
-}
 
 @Injectable()
 export class CartsRepository {

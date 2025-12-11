@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Cart, CartItem } from './carts.repository';
+import { Cart, CartItem } from './cart.interface';
 import { CartsRepository } from './carts.repository';
 import { BooksService } from '../books/books.service';
 import { v4 as uuidv4 } from 'uuid';
-import { BookData } from 'src/books/Book.schema';
-import { CartMeta, CheckoutMeta, SHIPPING_COST } from './cart.dto';
-import { CartItemRenderData } from './cart.dto';
+import { BookData } from '../books/books.interface';
+import { CartSummary, CheckoutSummary, SHIPPING_COST } from './cart.dto';
+import { CartItemDisplay } from './cart.dto';
 
 
 
@@ -18,8 +18,9 @@ export class CartsService {
     public async addItem(bookId: string, quantity: number, cartId: string | null): Promise<{ cartId: string; cart: Cart } | undefined> {
         const hasEnoughStock = await this.bookService.hasEnoughStock(bookId, quantity);
         if(hasEnoughStock) {
-            const IsCartExists = await this.cartRepository.getCart(cartId)
-            if(!IsCartExists) {
+
+            const cart = await this.cartRepository.getCart(cartId)
+            if(!cart) {
                 const newCartId = uuidv4();
                 const initialItem: CartItem = {
                     _id: bookId,
@@ -32,30 +33,29 @@ export class CartsService {
     }
 
 
-    public async getCart(cartId: string): Promise<{ cartId: string; cart: Cart; cartRender: CartItemRenderData[]; meta: CartMeta } | undefined> {
+    public async getCart(cartId: string): Promise<{ cartId: string; cart: Cart; cartDisplay: CartItemDisplay[]; cartSummary: CartSummary } | undefined> {
 
         // get cart 
         try {
             const cart = await this.cartRepository.getCart(cartId);
+            // cart exists
             if( cart ) {
+                // fetch books
                 const bookIDs = cart.items.map( (item) => item._id );
                 const books: BookData[] = await this.bookService.getBooksByIds( bookIDs ) || [];
                 const bookMap = this.buildBookMap(books);
     
-                const { removed, reduced, updated } = this.filterCartItems(cart, bookMap);
-    
-                const updatedCart: Cart = {
-                    items: updated
-                }
+                // update item cin carts  
+                const { removed, reduced, updatedCart } = this.filterCartItems(cart, bookMap);
 
-                const cartRender: CartItemRenderData[] = this.generateCartRenderData(updatedCart.items, bookMap);
-                const metaData: CartMeta = this.calculateCartMeta(updatedCart.items, bookMap);
+                const cartRender: CartItemDisplay[] = this.generateCartDisplay(updatedCart.items, bookMap);
+                const cartSummary: CartSummary = this.calculateCartSummary(updatedCart.items, bookMap);
     
                 return {
                     cartId,
                     cart: updatedCart,
-                    cartRender: cartRender,
-                    meta: metaData,
+                    cartDisplay: cartRender,
+                    cartSummary: cartSummary,
                 }
                
             }
@@ -64,7 +64,7 @@ export class CartsService {
         }
     }
 
-    public async generateCheckoutRenderData(cartId: string): Promise<CheckoutMeta | undefined> {
+    public async generateCheckoutRenderData(cartId: string): Promise<CheckoutSummary | undefined> {
         const cart = await this.cartRepository.getCart(cartId);
         if( cart ) {
             const itemsIds = cart.items.map( (item) => item._id );
@@ -78,7 +78,7 @@ export class CartsService {
     }
 
 
-    private  calculateCheckoutData(cart: Cart, booksMap: Map<string, BookData>): CheckoutMeta {
+    private  calculateCheckoutData(cart: Cart, booksMap: Map<string, BookData>): CheckoutSummary {
         const items = cart.items
         const matchedItems = items.filter( item => booksMap.has(item._id) );
         const totalItems = matchedItems.reduce( (sum, item) => sum + item.qty, 0);
@@ -88,7 +88,8 @@ export class CartsService {
         }, 0);
         const shippingCost = SHIPPING_COST; 
         const grandTotal = totalPrice + shippingCost;
-        const result: CheckoutMeta = {
+
+        const result: CheckoutSummary = {
             totalItems,
             totalPrice,
             shippingCost,
@@ -103,39 +104,43 @@ export class CartsService {
     }
 
 
+    // return updated cart would be better tho 
     private filterCartItems(cart: Cart, bookMap: Map<string, BookData>) {
         const removed: { _id: string, reason: string }[] = [];
         const reduced: { _id: string, oldQty: number, newQty: number, reason: string}[] = [];
-        const updated: CartItem[] = [];
+        const updatedItems: CartItem[] = [];
+        const updatedCart: Cart = { items: [] };
         
         for (const item of cart.items) {
             const book = bookMap.get(item._id);
             if (!book) {
                 removed.push({ _id: item._id, reason: "book not found" });
             } else if (item.qty <= book.stock) {
-                updated.push(item);
+                updatedItems.push(item);
             }
         }
-        return { removed, reduced, updated };
+        updatedCart.items = updatedItems;
+
+        return { removed, reduced, updatedCart };
     }
 
 
-    private calculateCartMeta(cartItem: CartItem[], bookMap: Map<string, BookData>): CartMeta {
+    private calculateCartSummary(cartItem: CartItem[], bookMap: Map<string, BookData>): CartSummary {
         const total_price = cartItem.reduce( (sum, item) => {
             const book = bookMap.get(item._id);
             return sum + (book ? book.price * item.qty : 0);
         }, 0);
         const itemCount = cartItem.reduce( (sum, item) => sum + item.qty, 0);
-        const metaData: CartMeta = {
+        const cartSummary: CartSummary = {
             totalItems: itemCount,
             totalPrice: total_price,
             messages: []
         };
-        return metaData;
+        return cartSummary;
     }
 
-    private generateCartRenderData(cartItems: CartItem[], bookMap: Map<string, BookData>): CartItemRenderData[] {
-        const renderData: CartItemRenderData[] = cartItems.map( item => {
+    private generateCartDisplay(cartItems: CartItem[], bookMap: Map<string, BookData>): CartItemDisplay[] {
+        const renderData: CartItemDisplay[] = cartItems.map( item => {
             const book = bookMap.get(item._id);
             return {
                 bookId: item._id,

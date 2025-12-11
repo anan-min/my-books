@@ -1,60 +1,31 @@
-import { IsNumber, IsPositive, IsString, IsOptional } from "class-validator";
-import type { Cart } from "./carts.repository";
+import { IsString, IsOptional, IsNumber, IsPositive } from "class-validator";
+import type { Cart } from "./cart.interface";
 import { Expose } from "class-transformer";
-
 
 
 
 export const SHIPPING_COST = 100;
 
-export interface CartMeta {
+export interface CartSummary {
   totalItems: number;
   totalPrice: number;
   messages: string[];
 }
 
 
-export interface CheckoutMeta {
+export interface CheckoutSummary {
   totalItems: number;
   totalPrice: number;
   shippingCost: number;
   grandTotal: number;
 }
 
-export interface CartItemRenderData {
+export interface CartItemDisplay {
   bookId: string;
   bookTitle: string;
   bookPrice: number; 
   bookQty: number; 
 }
-
-
-
-
-export class AddItemOutputDto {
-  @Expose()
-  @IsString()
-  cartId: string;
-  
-  @Expose()
-  cart: Cart;
-}
-
-export class AddItemInputDto {
-  @Expose()
-  @IsString()
-  bookId: string;
-
-  @Expose()
-  @IsNumber()
-  @IsPositive()
-  quantity: number;
-  
-  @Expose()
-  @IsOptional()
-  cartId?: string | null;
-}
-
 
 export class GetCartInputDto {
   @Expose()
@@ -70,27 +41,14 @@ export class GetCartOutputDto {
   cartId: string;
 
   @Expose()
-  cartRender : CartItemRenderData[];
+  cartDisplay : CartItemDisplay[];
 
   @Expose()
   cart: Cart;
 
   @Expose()
-  meta: CartMeta;
+  cartSummary: CartSummary;
 }
 
 
-// export interface CheckoutMeta {
-//   totalItems: number;
-//   totalPrice: number;
-//   shippingCost: number;
-//   grandTotal: number;
-// }
 
-
-export interface GetCartFromCheckoutDto {
-  totalItems: number;
-  totalPrice: number;
-  shippingCost: number;
-  grandTotal: number;
-}

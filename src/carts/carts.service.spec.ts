@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CartsService } from './carts.service';
 import { BooksService } from '../books/books.service';
-import { Cart, CartsRepository } from './carts.repository';
-import { BookData } from '../books/Book.schema'
-import { CartItemRenderData, CheckoutMeta, SHIPPING_COST } from './cart.dto';
+import { Cart } from './cart.interface';
+import { CartsRepository } from './carts.repository';
+import { BookData } from '../books/books.interface';
+import { CartItemDisplay, CheckoutSummary, SHIPPING_COST } from './cart.dto';
 describe('CartsService', () => {
   let service: CartsService;
   let mockCartRepo: Partial<CartsRepository>;
@@ -339,7 +340,7 @@ describe('CartsService', () => {
         },
       ]
 
-      const expectedRenderData: CartItemRenderData[] = [ 
+      const expectedCartDisplay: CartItemDisplay[] = [ 
         {
           bookId: books[0]._id,
           bookTitle: books[0].title,
@@ -361,13 +362,13 @@ describe('CartsService', () => {
 
       const result = await service.getCart(cartId);
       if( result ) { 
-        const {cartRender} = result;
-        expect(cartRender).toEqual(expectedRenderData);
+        const { cartDisplay } = result;
+        expect( cartDisplay ).toEqual(expectedCartDisplay);
       }
 
     });
 
-    it('should return meta data', async () => {
+    it('should return cartSummary', async () => {
       const cartId = "valid_id"
       const bookIDs = ["1", "2"]
       const qty = 1
@@ -400,29 +401,16 @@ describe('CartsService', () => {
         },
       ]
 
-      const renderData = [ 
-        {
-          book: books[0],
-          quantity: qty,
-          totalPrice: books[0].price * qty
-        },
-        {
-          book: books[1],
-          quantity: qty,
-          totalPrice: books[1].price * qty
-        }
-      ]
-
 
       mockBooksService.getBooksByIds = jest.fn().mockResolvedValue(books)
       mockCartRepo.getCart = jest.fn().mockResolvedValue(cart)
 
       const result = await service.getCart(cartId);
       if( result ) { 
-        const {meta} = result;
-        expect(meta.totalItems).toBe(2);
-        expect(meta.totalPrice).toBe(40); 
-        expect(meta.messages).toEqual([]);
+        const {cartSummary} = result;
+        expect(cartSummary.totalItems).toBe(2);
+        expect(cartSummary.totalPrice).toBe(40); 
+        expect(cartSummary.messages).toEqual([]);
       }
 
     });
@@ -454,11 +442,11 @@ describe('CartsService', () => {
   })
 
 
-  it('should test private method', () => {
-    const privateCartItem = (service as any)['calculateCartMeta'].bind(service);
-    // https://chatgpt.com/c/693a76e5-a39c-8322-aff4-58461a883fc3
-    // try to test this later on how to test private method properly
-  });
+  // it('should test private method', () => {
+  //   const privateCartItem = (service as any)['calculateCartMeta'].bind(service);
+  //   // https://chatgpt.com/c/693a76e5-a39c-8322-aff4-58461a883fc3
+  //   // try to test this later on how to test private method properly
+  // });
 
 
 
@@ -578,7 +566,7 @@ describe('CartsService', () => {
         },
       ];
 
-      const expectedCheckout: CheckoutMeta = {
+      const expectedCheckout: CheckoutSummary = {
         totalItems: 7,
         totalPrice: 85,
         shippingCost: SHIPPING_COST,

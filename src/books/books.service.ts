@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BookRepository } from './books.repository';
-import { BookData } from './Book.schema';
+import { BookData } from './books.interface';
 
 @Injectable()
 export class BooksService {
