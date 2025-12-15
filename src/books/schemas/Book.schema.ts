@@ -16,12 +16,6 @@ export class Book extends Document {
 
   @Prop({ required: true })
   stock: number;
-
-  // @Prop()
-  // createdAt: Date;
-
-  // @Prop()
-  // updatedAt: Date;
 }
 
 

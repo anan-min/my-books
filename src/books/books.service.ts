@@ -5,7 +5,7 @@ import { BookDocument } from './schemas/Book.schema';
 @Injectable()
 export class BooksService {
     constructor(private readonly bookRepository: BookRepository) {}
-
+ 
     async getDefaultBooks(): Promise<BookDocument[] | []> {
         return (await this.bookRepository.findDefaultBooks()).slice(0, 20);
     }

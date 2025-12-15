@@ -12,16 +12,13 @@ export class AddItemResponseDto {
 }
 
 export class AddItemRequestDto {
-  @Expose()
   @IsString()
   bookId: string;
 
-  @Expose()
   @IsNumber()
   @IsPositive()
   quantity: number;
   
-  @Expose()
   @IsOptional()
   cartId?: string | null;
 }

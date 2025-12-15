@@ -3,7 +3,8 @@ import { CartsService } from './carts.service';
 import { BooksService } from '../books/books.service';
 import { Cart } from './cart.interface';
 import { CartsRepository } from './carts.repository';
-import { CartItemDisplay, CheckoutSummary, SHIPPING_COST } from './cart.interface';
+import { CartItemDisplay, CheckoutSummary } from './cart.interface';
+import { SHIPPING_COST } from '../common/constants';
 
 describe('CartsService', () => {
   let service: CartsService;
@@ -586,6 +587,51 @@ describe('CartsService', () => {
 
       expect(result).toEqual(expectedCheckout);
     })
+
+
+  })
+
+
+  describe('getCartForOrder', () => {
+    // should fetch cart using cartId
+    // should handle redis error
+    // should return null if no cart found
+    // should return cart data if cart found
+    
+    it('should fetch cart using cartId', async () => {
+      const cartId = "cartId";
+      mockCartRepo.getCart = jest.fn().mockResolvedValue(null);
+      await service.getCartForOrder(cartId);
+      expect( mockCartRepo.getCart ).toHaveBeenCalledWith( cartId );
+      expect( mockCartRepo.getCart ).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle redis error when fetching cart', async () => {
+      const cartId = "cartId";
+      mockCartRepo.getCart = jest.fn().mockRejectedValue( new Error("Redis error") );
+      await expect( service.getCartForOrder(cartId) ).rejects.toThrow("Redis error");
+      expect( mockCartRepo.getCart ).toHaveBeenCalledWith( cartId );
+      expect( mockCartRepo.getCart ).toHaveBeenCalledTimes(1);
+    });
+    
+    it('should return null if no cart found', async () => {
+      const cartId = "cartId";
+      mockCartRepo.getCart = jest.fn().mockResolvedValue(null);
+      const result = await service.getCartForOrder(cartId);
+      expect(result).toBeNull();
+    });
+
+    it('should return cart data if cart found', async () => {
+      const cartId = "cartId";
+      const cart: Cart = {
+        items: [
+          { _id: "book1", qty: 2 }
+        ]
+      }
+      mockCartRepo.getCart = jest.fn().mockResolvedValue(cart);
+      const result = await service.getCartForOrder(cartId);
+      expect(result).toEqual(cart);
+    });
 
 
   })

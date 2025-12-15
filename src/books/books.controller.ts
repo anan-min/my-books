@@ -10,9 +10,6 @@ export class BooksController {
     @Get() 
     async getDefaultBooks(): Promise<BookOutputDto[]> {
         const books = await this.bookService.getDefaultBooks();
-        // return books.map((book: any) =>
-        //     plainToInstance(BookOutputDto, { ...book, _id: book._id.toString() }, { excludeExtraneousValues: true })
-        // );
 
         return books.map((book: any) =>
             plainToInstance(BookOutputDto, book, { excludeExtraneousValues: true })

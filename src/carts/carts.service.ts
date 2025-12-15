@@ -3,8 +3,9 @@ import { Cart, CartItem } from './cart.interface';
 import { CartsRepository } from './carts.repository';
 import { BooksService } from '../books/books.service';
 import { v4 as uuidv4 } from 'uuid';
-import { CartSummary, CheckoutSummary, SHIPPING_COST, CartItemDisplay } from './cart.interface';
-import { BookDocument } from 'src/books/schemas/Book.schema';
+import { CartSummary, CheckoutSummary, CartItemDisplay } from './cart.interface';
+import { BookDocument } from '../books/schemas/Book.schema';
+import { SHIPPING_COST } from '../common/constants';
 
 
 
@@ -75,6 +76,20 @@ export class CartsService {
         // cart exists -> render checkout data 
         // no exists return null / throw error to redirect to cart page
     }
+
+    
+    public async getCartForOrder(cartId: string): Promise<Cart | null> {
+        if(!cartId) return null;
+        const cart = await this.cartRepository.getCart(cartId);
+        return cart ? cart : null;
+    }
+
+
+
+
+    // ----------------
+    // HELPER METHODS
+    // ----------------
 
 
     private  calculateCheckoutData(cart: Cart, booksMap: Map<string, BookDocument>): CheckoutSummary {
