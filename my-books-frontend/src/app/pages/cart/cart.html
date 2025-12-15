@@ -1,0 +1,57 @@
+<div>
+    <div class="grid grid-cols-1 gap-4">
+      <div 
+        *ngFor="let item of cartDisplay" 
+        class="bg-white rounded shadow p-4 flex flex-row items-center space-x-6"
+      >
+      <div class="flex flex-row items-center space-x-8">
+          <div class="font-semibold text-lg text-heading">{{ item.bookTitle }}</div>
+          <div class="text-base text-gray-700">Price: <span class="font-bold">${{ item.bookPrice }}</span></div>
+          <div class="text-xs text-gray-400">ID: {{ item.bookId }}</div>
+          <div class="flex flex-row">
+              
+            <button 
+              class="bg-gray-500 text-white-700 px-4 py-2 rounded hover:bg-gray-600 hover:cursor-pointer"
+              >
+              -
+            </button>
+            <div class="text-base text-gray-700 px-4 py-2">{{ item.bookQty }}</div>
+            <button 
+              class="bg-gray-500 text-white-700 px-4 py-2 rounded hover:bg-gray-600 hover:cursor-pointer"
+              >
+              +
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="!cartDisplay?.length"
+      class="bg-white rounded shadow p-4 text-center text-gray-500 min-w-[500px]"
+    >
+      Your cart is empty.
+    </div>
+
+    <!-- cart summary -->
+    <div class="mt-6 p-4 bg-white rounded shadow">
+      <div class="text-lg font-semibold text-heading mb-4">Cart Summary</div>
+      <div class="flex flex-row justify-between mb-2">
+        <div class="text-base text-gray-700">Total Items:</div>
+        <div class="text-base text-gray-700">{{ cartSummary.totalItems || 0 }}</div>
+      </div>
+      <div class="flex flex-row justify-between mb-2">
+        <div class="text-base text-gray-700">Total Price:</div>
+        <div class="text-base text-gray-700">{{ cartSummary.totalPrice || 0 | currency:'THB ':'symbol':'1.2-2'}}</div>
+      </div>
+
+      <a 
+        href="/checkout"
+        class="block mt-4 w-full text-center bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+        >
+        Proceed to Checkout
+      </a>
+
+    </div>
+
+</div>

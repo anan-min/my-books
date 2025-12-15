@@ -1,0 +1,10 @@
+@cartId = "d1f0cdb6-ef9d-49d1-b92c-7ece951a573b"
+
+// create order with cartId and shipping address 
+POST http://localhost:3000/orders/create
+Content-Type: application/json
+
+{
+    "cartId": "4c973623-ea6f-46b2-b656-1d04395fa606",
+    "shippingAddress": "123 Main St, City, Country"
+}
